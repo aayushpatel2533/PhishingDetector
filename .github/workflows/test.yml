@@ -1,0 +1,93 @@
+name: CI - Test Phishing Detector
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Set up Python 3.11
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+    
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+    
+    - name: Test feature extraction
+      run: |
+        python -c "
+        from features import extract_features, get_feature_names
+        
+        # Test with a sample URL
+        test_url = 'https://www.google.com'
+        features = extract_features(test_url)
+        feature_names = get_feature_names()
+        
+        print('Testing feature extraction...')
+        print(f'Test URL: {test_url}')
+        print(f'Number of features extracted: {len(features)}')
+        print(f'Feature names: {feature_names}')
+        print(f'Feature values: {features}')
+        
+        # Verify all features are present
+        assert len(features) == len(feature_names), 'Feature count mismatch'
+        assert all(name in features for name in feature_names), 'Missing features'
+        
+        print('✓ Feature extraction test passed!')
+        "
+    
+    - name: Train model with fallback dataset
+      run: |
+        python train.py
+    
+    - name: Check model file exists
+      run: |
+        if [ -f "model.pkl" ]; then
+          echo "✓ model.pkl exists"
+          ls -lh model.pkl
+        else
+          echo "✗ model.pkl not found"
+          exit 1
+        fi
+    
+    - name: Test model prediction
+      run: |
+        python -c "
+        import joblib
+        from features import extract_features, get_feature_names
+        
+        # Load the trained model
+        model = joblib.load('model.pkl')
+        print('✓ Model loaded successfully')
+        
+        # Test prediction on a legitimate URL
+        test_url = 'https://www.github.com'
+        features = extract_features(test_url)
+        feature_values = [[features[name] for name in get_feature_names()]]
+        
+        prediction = model.predict(feature_values)[0]
+        prediction_proba = model.predict_proba(feature_values)[0]
+        
+        print(f'Test URL: {test_url}')
+        print(f'Prediction: {\"PHISHING\" if prediction == 1 else \"LEGITIMATE\"}')
+        print(f'Probabilities: Legitimate={prediction_proba[0]:.2%}, Phishing={prediction_proba[1]:.2%}')
+        print('✓ Model prediction test passed!')
+        "
+    
+    - name: Upload model artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: trained-model
+        path: model.pkl
+        retention-days: 7

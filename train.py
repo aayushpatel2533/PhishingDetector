@@ -1,12 +1,13 @@
 import pandas as pd
 import joblib
+import os
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score, classification_report
 from features import extract_features, get_feature_names
 
-# Hardcoded dataset: 10 legitimate, 10 phishing URLs
-dataset = [
+# Hardcoded dataset: 10 legitimate, 10 phishing URLs (fallback)
+FALLBACK_DATASET = [
     # Legitimate URLs (label = 0)
     ("https://www.google.com", 0),
     ("https://www.github.com", 0),
@@ -32,10 +33,47 @@ dataset = [
     ("http://netflix-free-account.winner-lucky.com", 1),
 ]
 
+def load_dataset_from_csv(csv_path="dataset.csv"):
+    """Load dataset from CSV file"""
+    try:
+        print(f"Loading dataset from {csv_path}...")
+        df = pd.read_csv(csv_path)
+        
+        # Check if required columns exist
+        if 'url' not in df.columns or 'status' not in df.columns:
+            print(f"✗ CSV must have 'url' and 'status' columns")
+            return None
+        
+        # Convert status to binary: phishing=1, legitimate=0
+        df['label'] = df['status'].apply(lambda x: 1 if str(x).lower() == 'phishing' else 0)
+        
+        # Create dataset list
+        dataset = list(zip(df['url'], df['label']))
+        
+        print(f"✓ Loaded {len(dataset):,} URLs from CSV")
+        print(f"  - Legitimate: {df['label'].value_counts().get(0, 0):,}")
+        print(f"  - Phishing: {df['label'].value_counts().get(1, 0):,}")
+        
+        return dataset
+        
+    except FileNotFoundError:
+        print(f"✗ File '{csv_path}' not found")
+        return None
+    except Exception as e:
+        print(f"✗ Error loading CSV: {e}")
+        return None
+
 def main():
     print("=" * 60)
     print("AI PHISHING DETECTOR - TRAINING")
     print("=" * 60)
+    
+    # Try to load dataset from CSV first
+    dataset = load_dataset_from_csv("dataset.csv")
+    
+    if dataset is None:
+        print("\n⚠ Falling back to hardcoded dataset (20 URLs)")
+        dataset = FALLBACK_DATASET
     
     # Extract features from all URLs
     print("\nExtracting features from URLs...")
@@ -67,7 +105,7 @@ def main():
     # Train Random Forest Classifier
     print("\nTraining Random Forest Classifier...")
     model = RandomForestClassifier(
-        n_estimators=100,
+        n_estimators=200,
         max_depth=10,
         random_state=42,
         n_jobs=-1
