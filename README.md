@@ -1,139 +1,159 @@
-# AI Phishing Detector
+# 🛡️ AI Phishing Detector
 
-A machine learning-powered web application that detects phishing URLs using Random Forest classification.
+![Python](https://img.shields.io/badge/Python-3.14-blue?style=for-the-badge&logo=python&logoColor=white)
+![Flask](https://img.shields.io/badge/Flask-3.1-black?style=for-the-badge&logo=flask&logoColor=white)
+![Scikit-Learn](https://img.shields.io/badge/Scikit--Learn-1.8-orange?style=for-the-badge&logo=scikit-learn&logoColor=white)
+![Accuracy](https://img.shields.io/badge/Accuracy-81.58%25-green?style=for-the-badge)
 
-## Features
+An AI-powered phishing URL detection system built with Python, Flask, and Machine Learning. Trained on 11,430 real-world URLs to classify whether a given URL is legitimate or a phishing attempt.
 
-- **10 Feature Extraction**: Analyzes URLs based on length, structure, security indicators, and entropy
-- **Random Forest Classifier**: Trained on legitimate and phishing URL patterns
-- **Dark-Themed Web Interface**: Modern UI with green accent colors
-- **Real-time Predictions**: Instant phishing detection with confidence scores
-- **Risk Assessment**: Provides risk score percentage for each URL
+---
 
-## Project Structure
+## 🚀 Features
+
+- Real-time URL scanning via a web interface
+- Random Forest ML model trained on 11,430 URLs (50/50 phishing/legitimate)
+- 10 URL-based features extracted for prediction
+- Shows Model Confidence and Phishing Probability separately
+- Dark-themed responsive UI with green/red result indicators
+
+---
+
+## 🧠 How It Works
+
+1. User enters a URL in the web interface
+2. 10 features are extracted from the URL
+3. A trained Random Forest model predicts if it's phishing or legitimate
+4. Result is shown with confidence % and phishing probability %
+
+---
+
+## 📊 Model Performance
+
+| Metric | Value |
+|--------|-------|
+| Training Dataset | 11,430 URLs |
+| Legitimate URLs | 5,715 |
+| Phishing URLs | 5,715 |
+| Model | Random Forest (200 trees) |
+| Accuracy | **81.58%** |
+| Legitimate Precision | 79% |
+| Phishing Precision | 85% |
+
+### Top Features by Importance
+
+| Feature | Importance |
+|---------|-----------|
+| URL Entropy | 21.13% |
+| Number of Subdomains | 17.73% |
+| URL Length | 13.39% |
+| Number of Dots | 11.86% |
+| Number of Slashes | 11.53% |
+| Number of Hyphens | 10.42% |
+| Suspicious Keywords | 10.28% |
+| Has HTTPS | 2.43% |
+| Has @ Symbol | 0.95% |
+| Has IP Address | 0.27% |
+
+---
+
+## 🛠️ Tech Stack
+
+- **Language:** Python 3.14
+- **Web Framework:** Flask 3.1
+- **ML Library:** Scikit-learn 1.8
+- **Data Processing:** Pandas, NumPy
+- **URL Parsing:** tldextract
+- **Model Persistence:** Joblib
+- **Dataset:** Kaggle — Web Page Phishing Detection Dataset (11,430 URLs)
+
+---
+
+## 📁 Project Structure
 
 ```
 PhishingDetector/
-├── features.py          # Feature extraction logic
-├── train.py            # Model training script
 ├── app.py              # Flask web application
-├── templates/
-│   └── index.html      # Web interface
-├── model.pkl           # Trained model (generated)
-├── requirements.txt    # Python dependencies
-└── README.md          # This file
+├── features.py         # URL feature extraction
+├── train.py            # Model training script
+├── download_data.py    # Dataset downloader
+├── model.pkl           # Trained ML model
+├── dataset.csv         # Training dataset
+├── requirements.txt    # Dependencies
+└── templates/
+    └── index.html      # Web UI
 ```
 
-## Installation
+---
 
-1. Install required packages:
+## ⚙️ Installation & Setup
+
+### Prerequisites
+- Python 3.10+
+- pip
+
+### Steps
+
+1. Clone the repository:
 ```bash
-pip install -r requirements.txt
+git clone https://github.com/aayushpatel2533/PhishingDetector.git
+cd PhishingDetector
 ```
 
-## Usage
-
-### Step 1: Train the Model
-
-Run the training script to create the model:
-
+2. Install dependencies:
 ```bash
-python train.py
+py -m pip install -r requirements.txt
 ```
 
-This will:
-- Extract features from 20 hardcoded URLs (10 legitimate, 10 phishing)
-- Train a Random Forest classifier
-- Display accuracy and classification report
-- Save the model as `model.pkl`
-
-### Step 2: Start the Web Application
-
-Launch the Flask server:
-
+3. Download dataset and train model:
 ```bash
-python app.py
+py download_data.py
+py train.py
 ```
 
-Access the application at: `http://127.0.0.1:5000`
-
-### Step 3: Scan URLs
-
-1. Enter a URL in the input field
-2. Click "Scan URL" or press Enter
-3. View the results:
-   - **Prediction**: PHISHING or LEGITIMATE
-   - **Confidence**: Model confidence percentage
-   - **Risk Score**: Probability of being phishing (0-100%)
-
-## Features Extracted
-
-1. **url_length**: Total character count
-2. **num_dots**: Number of dots in URL
-3. **num_hyphens**: Number of hyphens
-4. **num_slashes**: Number of slashes
-5. **has_https**: HTTPS protocol indicator
-6. **has_ip**: IP address presence
-7. **has_at**: @ symbol presence
-8. **num_subdomains**: Subdomain count
-9. **has_suspicious_word**: Suspicious keyword detection
-10. **entropy**: Shannon entropy of URL string
-
-## Suspicious Keywords
-
-The detector checks for these keywords:
-- login, verify, bank, secure, account
-- update, free, lucky, winner
-
-## Technology Stack
-
-- **Backend**: Flask (Python web framework)
-- **ML Model**: scikit-learn Random Forest Classifier
-- **Feature Extraction**: tldextract, regex, entropy calculation
-- **Frontend**: HTML, CSS, JavaScript (Vanilla)
-- **Model Persistence**: joblib
-
-## API Endpoints
-
-### GET /
-Returns the main web interface
-
-### POST /predict
-Accepts JSON with URL and returns prediction
-
-**Request:**
-```json
-{
-  "url": "https://example.com"
-}
+4. Start the web app:
+```bash
+py app.py
 ```
 
-**Response:**
-```json
-{
-  "prediction": "LEGITIMATE",
-  "confidence": 95.5,
-  "risk_score": 4.5,
-  "url": "https://example.com"
-}
+5. Open in browser:
+```
+http://127.0.0.1:5000
 ```
 
-### GET /health
-Health check endpoint
+---
 
-## Model Performance
+## 🧪 Test URLs
 
-The model is trained on a small dataset for demonstration purposes. For production use, train on a larger, more diverse dataset.
+**Legitimate:**
+- `https://www.google.com`
+- `https://www.github.com`
+- `https://www.amazon.com`
 
-## Security Note
+**Phishing:**
+- `http://192.168.1.1/login/verify`
+- `http://secure-bank-login.tk/account/update`
+- `http://free-winner.ml/claim/prize`
 
-This is a demonstration project. For production use:
-- Train on a larger dataset (1000+ URLs)
-- Implement additional features (WHOIS data, page content analysis)
-- Add rate limiting and input validation
-- Use HTTPS in production
-- Regularly retrain the model with new phishing patterns
+---
 
-## License
+## 🔄 Future Improvements
 
-MIT License - Feel free to use and modify for your projects.
+- Train on larger dataset (100k+ URLs)
+- Add WHOIS domain age feature
+- Add real-time VirusTotal API integration
+- Export scan history as PDF report
+- Browser extension version
+
+---
+
+## 👨‍💻 Developer
+
+Developed by **Aayush Patel**
+GitHub: [github.com/aayushpatel2533](https://github.com/aayushpatel2533)
+
+---
+
+## 📄 License
+
+This project is licensed under the MIT License.
